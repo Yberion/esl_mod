@@ -259,4 +259,11 @@ XCVAR_DEF( cg_thirdPersonAlpha,					"1",					NULL,					CVAR_CHEAT )
 
 //<--[ESL_MOD PROTECTION CVAR UNLOCKER]
 
+//[BASEJKA.COM PROTECTION LAG UNLOCKER]-->
+
+XCVAR_DEF( cl_timenudge,						"0",					NULL,					CVAR_NONE )
+XCVAR_DEF( cl_maxpackets,						"15",					NULL,					CVAR_NONE )
+
+//<--[BASEJKA.COM PROTECTION LAG UNLOCKER]
+
 #undef XCVAR_DEF

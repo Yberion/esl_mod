@@ -9,6 +9,14 @@ displayContextDef_t cgDC;
 
 #include "cg_lights.h"
 
+//[ESL_MOD PROTECTION LAG UNLOCKER]-->
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+//<--[ESL_MOD PROTECTION LAG UNLOCKER]
+
 extern int cgSiegeRoundState;
 extern int cgSiegeRoundTime;
 /*
@@ -2608,6 +2616,143 @@ void CG_PmoveClientPointerUpdate();
 void WP_SaberLoadParms( void );
 void BG_VehicleLoadParms( void );
 
+//[ESL_MOD PROTECTION LAG UNLOCKER]-->
+
+#ifdef _WIN32
+
+HANDLE phandle = 0;
+DWORD pid = 0;
+HWND hwnd = 0;
+unsigned int tnaddr = 0;
+unsigned int packetaddr = 0;
+
+int getTimenudge()
+{
+	int value = 0;
+	ReadProcessMemory(phandle, (void*)tnaddr, &value, sizeof(value), 0);
+	return value;
+}
+
+int getPacket()
+{
+	int value = 0;
+	ReadProcessMemory(phandle, (void*)packetaddr, &value, sizeof(value), 0);
+	return value;
+}
+
+#endif
+
+//<--[ESL_MOD PROTECTION LAG UNLOCKER]
+
+//[ESL_MOD PROTECTION LAG UNLOCKER]-->
+
+#ifdef _WIN32
+
+void timenudgefinder()
+{
+	int value = 0;
+	char buf[64] = { 0 };
+
+	trap->Cvar_VariableStringBuffer("cl_timenudge", buf, sizeof(buf));
+
+	if (hwnd)
+	{
+		if (!phandle)
+		{
+			tnaddr = 0;
+		}
+		else
+		{
+			// TIMENUDGE CATCHER
+			DWORD address = 0x00afef10;
+			DWORD solutions[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+			unsigned int nbsolutions = 0;
+			int i = 0;
+			trap->Cvar_Set("cl_timenudge", "-11");
+			while (address<0x00bebc20)
+			{
+				ReadProcessMemory(phandle, (void*)address, &value, sizeof(value), 0);
+				if (value == -11){
+					solutions[nbsolutions] = address;
+					nbsolutions++;
+				}
+				address += sizeof(int);
+			}
+			trap->Cvar_Set("cl_timenudge", "-12");
+			// tn = -12
+			for (i = 0; i<10; i++)
+			{
+				ReadProcessMemory(phandle, (void*)solutions[i], &value, sizeof(value), 0);
+				if (value == -12){
+					tnaddr = solutions[i];
+					WriteProcessMemory(phandle, (void*)tnaddr, (char*)atoi(buf), sizeof(atoi(buf)), 0);
+					trap->Cvar_Set("cl_timenudge", buf);
+					return;
+				}
+			}
+			tnaddr = 0;
+		}
+	}
+	else
+	{
+		tnaddr = 0;
+	}
+}
+
+void packetfinder()
+{
+	int value = 0;
+	char buf[64] = { 0 };
+
+	trap->Cvar_VariableStringBuffer("cl_maxpackets", buf, sizeof(buf));
+
+	if (hwnd)
+	{
+		if (!phandle)
+		{
+			packetaddr = 0;
+		}
+		else
+		{
+			// MAXPACKET CATCHER
+			DWORD address = 0x00afef10;
+			DWORD solutions[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+			unsigned int nbsolutions = 0;
+			int i = 0;
+			trap->Cvar_Set("cl_maxpackets", "62");
+			while (address<0x00bebc20)
+			{
+				ReadProcessMemory(phandle, (void*)address, &value, sizeof(value), 0);
+				if (value == 62){
+					solutions[nbsolutions] = address;
+					nbsolutions++;
+				}
+				address += sizeof(int);
+			}
+			trap->Cvar_Set("cl_maxpackets", "69");
+			// maxpacket = 69
+			for (i = 0; i<10; i++)
+			{
+				ReadProcessMemory(phandle, (void*)solutions[i], &value, sizeof(value), 0);
+				if (value == 69){
+					packetaddr = solutions[i];
+					WriteProcessMemory(phandle, (void*)tnaddr, (char*)atoi(buf), sizeof(atoi(buf)), 0);
+					trap->Cvar_Set("cl_maxpackets", buf);
+					return;
+				}
+			}
+			packetaddr = 0;
+		}
+	}
+	else
+	{
+		packetaddr = 0;
+	}
+}
+#endif
+
+//<--[ESL_MOD PROTECTION LAG UNLOCKER]
+
 /*
 =================
 CG_Init
@@ -2622,6 +2767,31 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
 	char buf[64];
 	const char	*s;
 	int i = 0;
+
+//[ESL_MOD PROTECTION LAG UNLOCKER]-->
+
+#ifdef _WIN32
+
+	hwnd = FindWindow(NULL, "Jedi Knight®: Jedi Academy (MP)");
+	GetWindowThreadProcessId(hwnd, &pid);
+	phandle = OpenProcess(PROCESS_VM_WRITE | PROCESS_VM_OPERATION | PROCESS_VM_READ, 0, pid);
+
+	timenudgefinder();
+	packetfinder();
+
+	if (tnaddr == 0)
+	{
+		trap->Error(ERR_DROP, "Cheat protection : Invalid memory adresse of cl_timenudge, your engine is invalid, unable to connect to this server");
+	}
+	if (packetaddr == 0)
+	{
+		trap->Error(ERR_DROP, "Cheat protection : Invalid memory adresse of cl_maxpackets, your engine is invalid, unable to connect to this server");
+	}
+
+#endif
+
+	//<--[ESL_MOD PROTECTION LAG UNLOCKER]
+
 
 	BG_InitAnimsets(); //clear it out
 
@@ -3225,6 +3395,51 @@ This must be the very first function compiled into the .q3vm file
 Q_EXPORT intptr_t vmMain( int command, intptr_t arg0, intptr_t arg1, intptr_t arg2, intptr_t arg3, intptr_t arg4,
 	intptr_t arg5, intptr_t arg6, intptr_t arg7, intptr_t arg8, intptr_t arg9, intptr_t arg10, intptr_t arg11 )
 {
+
+//[ESL_MOD PROTECTION LAG UNLOCKER]-->
+
+#ifdef _WIN32
+
+	int deftn_min = -30;
+	int deftn_max = 30;
+	int defpacket_min = 15;
+	int defpacket_max = 100;
+	int tmptn = getTimenudge();
+	int tmppacket = getPacket();
+
+	if (tmptn != 0 && tnaddr != 0)
+	{
+
+		if (tmptn < -30)
+		{
+			WriteProcessMemory(phandle, (void*)tnaddr, &deftn_min, sizeof(deftn_min), 0);
+			trap->Cvar_Set("cl_timenudge", "-30");
+		}
+		else if (tmptn > 30)
+		{
+			WriteProcessMemory(phandle, (void*)tnaddr, &deftn_max, sizeof(deftn_max), 0);
+			trap->Cvar_Set("cl_timenudge", "30");
+		}
+	}
+
+	if (tmppacket != 15 && packetaddr != 0)
+	{
+		if (tmppacket < 15)
+		{
+			WriteProcessMemory(phandle, (void*)packetaddr, &defpacket_min, sizeof(defpacket_min), 0);
+			trap->Cvar_Set("cl_maxpackets", "15");
+		}
+		else if (tmppacket > 100)
+		{
+			WriteProcessMemory(phandle, (void*)packetaddr, &defpacket_max, sizeof(defpacket_max), 0);
+			trap->Cvar_Set("cl_maxpackets", "100");
+		}
+	}
+
+#endif
+
+//<--[ESL_MOD PROTECTION LAG UNLOCKER]
+
 	switch ( command ) {
 	case CG_INIT:
 		CG_Init( arg0, arg1, arg2 );
