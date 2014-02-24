@@ -508,6 +508,32 @@ void CG_UpdateCvars( void ) {
 	size_t		i = 0;
 	cvarTable_t	*cv = NULL;
 
+//[ESL_MOD PROTECTION CVAR UNLOCKER]-->
+
+	int j = 0;
+	int cvarValue = 0;
+	char buf[64] = { 0 };
+	const char *esl_tabCmd[] = {	"bot_report", "bot_pause", "bot_testclusters", "bot_testsolid", "bot_thinktime", "bot_visualizejumppads", "bot_debug",
+									"bot_developer", "cm_noCurves", "cm_noAreas", "com_dropsim", "com_terrainPhysics", "com_showtrace", "cm_playerCurveClip",
+									"debuggraph", "d_patched", "d_altRoutes", "fixedtime", "graphshift", "graphscale", "graphheight", "r_drawTerrain",
+									"r_terrainTessellate", "r_noserverghoul2", "r_noportals", "r_lockpvs", "r_offsetunits", "r_offsetfactor", "r_clear",
+									"r_shownormals", "r_showsky", "r_debugSurface", "r_logFile", "r_verbose", "r_speeds", "r_showcluster", "r_novis", "r_nocull",
+									"r_ignore", "r_drawentities", "r_norefresh", "r_measureOverdraw", "r_skipBackEnd", "r_portalOnly", "r_lightmap", "r_drawfog",
+									"r_drawworld", "r_nocurves", "r_debugSort", "r_showImages", "r_directedScale", "r_roofCeilFloorDist", "r_roofCullCeilDist",
+									"r_cullRoofFaces", "r_znear", "r_singleShader", "r_fullbright", "r_DynamicGlowSoft", "r_DynamicGlowPasses", "RMG_distancecull",
+									"s_debugdynamic", "s_testsound", "s_show", "timescale", "viewlog" /* 65 */, "cg_gunX", "cg_gunY", "cg_gunZ", "cg_centertime",
+									"cg_animspeed", "cg_debuganim", "cg_debugsaber", "cg_debugposition", "cg_debugevents", "cg_noplayeranims", "cg_thirdPersonRange",
+									"cg_thirdPersonAngle", "cg_thirdPersonPitchOffset", "cg_thirdPersonVertOffset", "cg_thirdPersonHorzOffset", "cg_cameraOrbit",
+									"com_cameraMode", "cg_thirdPersonAlpha" /* 83 */ };
+
+	const int esl_tabValue[] = {	0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 32, 1, 3, 0, 0, 0, -2, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+									1, 0, 0, 0, 0, 0, 2, 1, 0, 0, 0, 1, 128, 256, 0, 4, 0, 0, 1, 5, 5000, 0, 0, 0, 1, 0 /* 65 */, 0, 0, 0, 3, 1, 0, 0, 0, 0,
+									0, 80, 0, 0, 16, 0, 0, 0, 1 /* 83 */ };
+
+	static const size_t esl_tabCmdSize = ARRAY_LEN( esl_tabCmd );
+
+//<--[ESL_MOD PROTECTION CVAR UNLOCKER]
+	
 	for ( i=0, cv=cvarTable; i<cvarTableSize; i++, cv++ ) {
 		if ( cv->vmCvar ) {
 			int modCount = cv->vmCvar->modificationCount;
@@ -515,6 +541,38 @@ void CG_UpdateCvars( void ) {
 			if ( cv->vmCvar->modificationCount != modCount ) {
 				if ( cv->update )
 					cv->update();
+
+			//[ESL_MOD PROTECTION CVAR UNLOCKER]-->
+
+				for (j = 0; j < esl_tabCmdSize ; j++)
+				{
+					int esl_cvarCheck = 0;
+
+					trap->Cvar_VariableStringBuffer(esl_tabCmd[j], buf, sizeof(buf));
+					esl_cvarCheck = atoi( buf );
+
+					if(!Q_stricmp(cv->cvarName, esl_tabCmd[j]) && (esl_cvarCheck != esl_tabValue[j]))
+					{
+						cvarValue = esl_tabValue[j];
+						trap->Cvar_Set( esl_tabCmd[j], va("%d", cvarValue));
+						trap->Print( va("^3%s ^7is cheat protected !\n", cv->cvarName) );
+					}
+				}
+
+				if(!Q_stricmp(cv->cvarName, "cg_thirdPersonTargetDamp") && cg_thirdPersonTargetDamp.integer != 0.5)
+				{
+					trap->Cvar_Set( "cg_thirdPersonTargetDamp", "0.5" );
+					trap->Print( va("^3%s ^7is cheat protected !\n", cv->cvarName) );
+				}
+
+				if(!Q_stricmp(cv->cvarName, "r_ambientScale") && r_ambientScale.integer != 0.6)
+				{
+					trap->Cvar_Set( "r_ambientScale", "0.6" );
+					trap->Print( va("^3%s ^7is cheat protected !\n", cv->cvarName ) );
+				}
+
+			//<--[ESL_MOD PROTECTION CVAR UNLOCKER]
+
 			}
 		}
 	}
