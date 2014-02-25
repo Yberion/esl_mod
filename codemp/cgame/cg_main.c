@@ -2686,6 +2686,7 @@ void timenudgefinder()
 				return;
 			}
 		}
+		trap->Cvar_Set("cl_timenudge", buf);
 		tnaddr = 0;
 	}
 }
@@ -2730,6 +2731,7 @@ void packetfinder()
 				return;
 			}
 		}
+		trap->Cvar_Set("cl_maxpackets", buf);
 		packetaddr = 0;
 	}
 }
