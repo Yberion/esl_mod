@@ -99,6 +99,34 @@ void Cmd_Score_f( gentity_t *ent ) {
 
 /*
 ==================
+Cmd_esl_Status_f
+==================
+*/
+void Cmd_esl_Status_f(gentity_t *ent) {
+
+	gclient_t	*cl;
+	int	i;
+	char state[32] = { 0 };
+	
+	trap->SendServerCommand(ent - g_entities, "print \"ID Ping Name            IP\n");
+	trap->SendServerCommand(ent - g_entities, "print \"-- ---- --------------- ---------------------\n");
+
+	for (i = 0, cl = level.clients; i < level.maxclients; i++, cl++)
+	{
+		if (cl->pers.connected == CON_DISCONNECTED)
+			continue;
+
+		if (cl->pers.connected == CON_CONNECTING)
+			Q_strncpyz(state, "CNCT", sizeof(state));
+		else
+			Q_strncpyz(state, va("%4i", cl->ps.ping < 999 ? cl->ps.ping : 999), sizeof(state));
+
+		trap->SendServerCommand(ent - g_entities, va("print \"%2i %4s %-15.15s %21s\n", i, state, cl->pers.netname_nocolor, cl->sess.IP));
+	}
+}
+
+/*
+==================
 ConcatArgs
 ==================
 */
@@ -3362,6 +3390,7 @@ command_t commands[] = {
 	{ "debugBMove_Right",	Cmd_BotMoveRight_f,			CMD_CHEAT|CMD_ALIVE },
 	{ "debugBMove_Up",		Cmd_BotMoveUp_f,			CMD_CHEAT|CMD_ALIVE },
 	{ "duelteam",			Cmd_DuelTeam_f,				CMD_NOINTERMISSION },
+	{ "esl_status",			Cmd_esl_Status_f,			0 },
 	{ "follow",				Cmd_Follow_f,				CMD_NOINTERMISSION },
 	{ "follownext",			Cmd_FollowNext_f,			CMD_NOINTERMISSION },
 	{ "followprev",			Cmd_FollowPrev_f,			CMD_NOINTERMISSION },
