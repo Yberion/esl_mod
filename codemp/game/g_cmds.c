@@ -1970,6 +1970,31 @@ qboolean G_VoteClientkick( gentity_t *ent, int numArgs, const char *arg1, const 
 	return qtrue;
 }
 
+qboolean G_VoteForceSpectator(gentity_t *ent, int numArgs, const char *arg1, const char *arg2) {
+	int n = atoi(arg2);
+
+	if (n < 0 || n >= MAX_CLIENTS) {
+		trap->SendServerCommand(ent - g_entities, va("print \"invalid client number %d.\n\"", n));
+		return qfalse;
+	}
+
+	if (g_entities[n].client->pers.connected != CON_CONNECTED) {
+		trap->SendServerCommand(ent - g_entities, va("print \"there is no client with the client number %d.\n\"", n));
+		return qfalse;
+	}
+
+	if (g_entities[n].client->sess.sessionTeam == TEAM_SPECTATOR) {
+		trap->SendServerCommand(ent - g_entities, va("print \"client number %d already spectator.\n\"", n));
+		return qfalse;
+	}
+
+
+	Com_sprintf(level.voteString, sizeof(level.voteString), "forceteam %s spectator", arg2);
+	Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "forcespec %s", g_entities[n].client->pers.netname);
+	Q_strncpyz(level.voteStringClean, level.voteString, sizeof(level.voteStringClean));
+	return qtrue;
+}
+
 qboolean G_VoteFraglimit( gentity_t *ent, int numArgs, const char *arg1, const char *arg2 ) {
 	int n = Com_Clampi( 0, 0x7FFFFFFF, atoi( arg2 ) );
 	Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %i", arg1, n );
@@ -2165,6 +2190,7 @@ static voteString_t validVoteStrings[] = {
 	//	vote string				aliases										# args	valid gametypes							exec delay		short help
 	{	"capturelimit",			"caps",				G_VoteCapturelimit,		1,		GTB_CTF|GTB_CTY,						qtrue,			"<num>" },
 	{	"clientkick",			NULL,				G_VoteClientkick,		1,		GTB_ALL,								qfalse,			"<clientnum>" },
+	{	"forcespec",			"spec",				G_VoteForceSpectator,	1,		GTB_ALL,								qtrue,			"<clientnum>" },
 	{	"fraglimit",			"frags",			G_VoteFraglimit,		1,		GTB_ALL & ~(GTB_SIEGE|GTB_CTF|GTB_CTY),	qtrue,			"<num>" },
 	{	"g_doWarmup",			"dowarmup warmup",	G_VoteWarmup,			1,		GTB_ALL,								qtrue,			"<0-1>" },
 	{	"g_gametype",			"gametype gt mode",	G_VoteGametype,			1,		GTB_ALL,								qtrue,			"<num or name>" },
