@@ -317,6 +317,7 @@ static const char *gcmds[] = {
 	"callteamvote",
 	"callvote",
 	"duelteam",
+	"esl_checkserver",
 	"esl_status",
 	"follow",
 	"follownext",

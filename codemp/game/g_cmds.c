@@ -154,6 +154,54 @@ void Cmd_esl_Status_f(gentity_t *ent) {
 
 /*
 ==================
+Cmd_esl_checkserver_f
+==================
+*/
+void Cmd_esl_CheckServer_f(gentity_t *ent)
+{
+	int j = 0;
+	qboolean esl_checkServerErr = qfalse;
+	
+	const char *esl_tabCmd[] = { "sv_pure", "sv_fps", "sv_allowdownload", "sv_cheats", "sv_floodprotect", "sv_maxRate", "bg_fighteraltcontrol", "d_saberkicktweak", "g_debugmelee",
+							"g_dismember", "g_forceregentime", "g_friendlyfire", "g_friendlysaber", "g_gravity", "g_locationbaseddamage", "g_privateduel",
+							"g_saberlockfactor", "g_saberlocking", "g_speed", "g_stepslidefix", "g_teamautojoin", "g_teamforcebalance", "g_autoMapCycle", "g_allowDuelSuicide",
+							"g_weapondisable", "g_duelWeaponDisable", "g_forcepowerdisable", "disable_item_shield_lrg_instant", "disable_item_shield_sm_instant", "disable_item_medpak_instant",
+							"disable_item_medpac", "disable_item_medpak", "disable_item_force_boon", "disable_item_force_enlighten_light", "disable_item_force_enlighten_dark", "g_forcebasedteams",
+							"g_maxforcerank" };
+
+	const int esl_tabValue[] = { 1, 20, 0, 0, 1, 25000, 0, 1, 0, 0, 200, 1, 1, 800, 1, 0, 2, 0, 250, 1, 0, 0, 0, 1, 524279, 524279, 163837, 1, 1, 1, 1, 1, 1, 1, 1, 0, 7 };
+
+	static const size_t esl_tabCmdSize = ARRAY_LEN(esl_tabCmd);
+
+	trap->SendServerCommand(ent - g_entities, va("print \"\n^5Checking server cfg ...\n\n\""));
+
+	for (j = 0; j < esl_tabCmdSize; j++)
+	{
+		if (trap->Cvar_VariableIntegerValue(esl_tabCmd[j]) != esl_tabValue[j])
+		{
+			trap->SendServerCommand(ent-g_entities, va("print \"^1[^3%s^1]^7 is set to ^1[^3%d^1]^7 --> change it to ^5[^2%d^5]^7\n\n\"", esl_tabCmd[j], trap->Cvar_VariableIntegerValue(esl_tabCmd[j]), esl_tabValue[j]));
+			esl_checkServerErr = qtrue;
+		}
+	}
+
+	if (trap->Cvar_VariableIntegerValue("g_saberDamageScale") != 1)
+	{
+		trap->SendServerCommand(ent-g_entities, va("print \"^1[^3g_saberDamageScale^1]^7 is set to ^1[^3%f^1]^7 --> change it to ^5[^21^5]^7\n\n\"", g_saberDamageScale.value));
+		esl_checkServerErr = qtrue;
+	}
+
+	if (esl_checkServerErr)
+	{
+		trap->SendServerCommand(ent-g_entities, va("print \"^1There is a problem with the server cfg !\n\n\""));
+	}
+	else
+	{
+		trap->SendServerCommand(ent-g_entities, va("print \"^2Server cfg OK !\n\n\""));
+	}
+}
+
+/*
+==================
 ConcatArgs
 ==================
 */
@@ -3443,6 +3491,7 @@ command_t commands[] = {
 	{ "debugBMove_Right",	Cmd_BotMoveRight_f,			CMD_CHEAT|CMD_ALIVE },
 	{ "debugBMove_Up",		Cmd_BotMoveUp_f,			CMD_CHEAT|CMD_ALIVE },
 	{ "duelteam",			Cmd_DuelTeam_f,				CMD_NOINTERMISSION },
+	{ "esl_checkserver",	Cmd_esl_CheckServer_f,		0 },
 	{ "esl_status",			Cmd_esl_Status_f,			0 },
 	{ "follow",				Cmd_Follow_f,				CMD_NOINTERMISSION },
 	{ "follownext",			Cmd_FollowNext_f,			CMD_NOINTERMISSION },
