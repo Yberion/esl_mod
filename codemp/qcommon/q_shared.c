@@ -1711,3 +1711,28 @@ char *Com_SkipTokens( char *s, int numTokens, char *sep ) {
 	else
 		return s;
 }
+
+/*
+==================
+calcRatio
+==================
+*/
+
+float calcRatio(int kill, int death, int suicide, int teamKill, char *ratioString, int sizeRatioString) {
+
+	if ((kill - death) >= 0)
+		Com_sprintf(ratioString, sizeRatioString, "("S_COLOR_GREEN"+%d"S_COLOR_WHITE")", kill - death);
+	else
+		Com_sprintf(ratioString, sizeRatioString, "("S_COLOR_RED"%d"S_COLOR_WHITE")", kill - (death - suicide));
+
+	if (kill == 0 && death == 0)
+		return 1.0;
+	else if (kill < 1 && death >= 1)
+		return 0.0;
+	else if (teamKill >= 1 && kill < teamKill && kill < 0)
+		return 0.0;
+	else if (kill >= 1 && death <= 1)
+		return (float)kill;
+	else
+		return (float)kill / (float)death;
+}

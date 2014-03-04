@@ -99,6 +99,33 @@ void Cmd_Score_f( gentity_t *ent ) {
 
 /*
 ==================
+Cmd_Stats_f
+
+Request current personal stats
+==================
+*/
+void Cmd_Stats_f(gentity_t *ent) {
+
+	playerState_t *ps = &ent->client->ps;
+	char    ratioString[16] = { 0 };
+	float   ratio = calcRatio(ps->persistant[PERS_SCORE], ps->persistant[PERS_KILLED], ps->persistant[PERS_SUICIDE], ps->persistant[PERS_TEAMKILL], ratioString, sizeof(ratioString));
+
+	if (level.gametype == GT_CTF)
+	{
+		trap->SendServerCommand(ent - g_entities, "print \"Ratio isn't supported by this gametype\n\"");
+		return;
+	}
+
+	trap->SendServerCommand(ent - g_entities, va("print \"Kills"S_COLOR_BLUE": "S_COLOR_WHITE"%i "S_COLOR_BLUE"| "
+		""S_COLOR_WHITE"Deaths"S_COLOR_BLUE": "S_COLOR_WHITE"%i "S_COLOR_BLUE"("S_COLOR_WHITE"Suicides"S_COLOR_BLUE": "S_COLOR_WHITE"%i"S_COLOR_BLUE") "S_COLOR_BLUE"| "
+		""S_COLOR_WHITE"Teamkills"S_COLOR_BLUE": "S_COLOR_WHITE"%i "S_COLOR_BLUE"| "S_COLOR_WHITE"Ratio"S_COLOR_BLUE": "S_COLOR_WHITE"%.2f %s\n\"",
+		ps->persistant[PERS_SCORE], ps->persistant[PERS_KILLED],
+		ps->persistant[PERS_SUICIDE], ps->persistant[PERS_TEAMKILL],
+		ratio, ratioString));
+}
+
+/*
+==================
 Cmd_esl_Status_f
 ==================
 */
@@ -3412,6 +3439,7 @@ command_t commands[] = {
 	{ "score",				Cmd_Score_f,				0 },
 	{ "setviewpos",			Cmd_SetViewpos_f,			CMD_CHEAT|CMD_NOINTERMISSION },
 	{ "siegeclass",			Cmd_SiegeClass_f,			CMD_NOINTERMISSION },
+	{ "stats",				Cmd_Stats_f,				0 },
 	{ "team",				Cmd_Team_f,					CMD_NOINTERMISSION },
 //	{ "teamtask",			Cmd_TeamTask_f,				CMD_NOINTERMISSION },
 	{ "teamvote",			Cmd_TeamVote_f,				CMD_NOINTERMISSION },

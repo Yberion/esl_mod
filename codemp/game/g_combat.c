@@ -2507,9 +2507,12 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 
 	self->client->ps.persistant[PERS_KILLED]++;
 
+	if (OnSameTeam(self, attacker) && self != attacker)
+		attacker->client->ps.persistant[PERS_TEAMKILL]++;
+
 	if (self == attacker)
 	{
-		self->client->ps.fd.suicides++;
+		self->client->ps.persistant[PERS_SUICIDE]++;
 	}
 
 	if (attacker && attacker->client) {

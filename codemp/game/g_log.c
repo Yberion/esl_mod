@@ -1407,7 +1407,7 @@ qboolean CalculateTeamRedShirt(gentity_t *ent)
 		if (!player->inuse || (player->client->ps.persistant[PERS_TEAM] != team))
 			continue;
 		nScore = player->client->ps.persistant[PERS_KILLED];
-		nScore -= player->client->ps.fd.suicides; // suicides don't count, you big cheater.
+		nScore -= player->client->ps.persistant[PERS_SUICIDE]; // suicides don't count, you big cheater.
 		if (nScore > nHighestScore)
 		{
 			nHighestScore = nScore;

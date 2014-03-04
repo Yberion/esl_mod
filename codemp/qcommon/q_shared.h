@@ -2371,3 +2371,8 @@ enum {
 };
 
 void NET_AddrToString( char *out, size_t size, void *addr );
+
+// calcRatio
+//============================================
+
+float calcRatio(int kill, int death, int suicide, int teamKill, char *ratioString, int sizeRatioString);
