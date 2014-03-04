@@ -1145,9 +1145,9 @@ static int CG_CalcFov( void ) {
 	{
 		cgFov = 1;
 	}
-	if (cgFov > 130)
+	if (cgFov > 98)
 	{
-		cgFov = 130;
+		cgFov = 98;
 	}
 
 	if ( cg.predictedPlayerState.pm_type == PM_INTERMISSION ) {
