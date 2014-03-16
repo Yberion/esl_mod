@@ -2631,8 +2631,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
 
 #endif
 
-	//<--[ESL_MOD PROTECTION LAG UNLOCKER]
-
+//<--[ESL_MOD PROTECTION LAG UNLOCKER]
 
 	BG_InitAnimsets(); //clear it out
 

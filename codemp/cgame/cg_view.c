@@ -2703,7 +2703,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 			trap->Cvar_Set("timescale", va("%f", timescale.value));
 		}
 	}
-
+	
 	// actually issue the rendering calls
 	CG_DrawActive( stereoView );
 

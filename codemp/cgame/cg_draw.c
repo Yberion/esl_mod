@@ -4178,6 +4178,15 @@ static void CG_DrawDisconnect( void ) {
 	CG_DrawPic( x, y, 48, 48, trap->R_RegisterShader("gfx/2d/net.tga" ) );
 }
 
+/*
+==============
+CG_DrawESL_MOD
+==============
+*/
+static void CG_DrawESL_MOD(void) {
+	CG_DrawSmallString(582, 385, "esl_mod", 1.0F);
+}
+
 
 #define	MAX_LAGOMETER_PING	900
 #define	MAX_LAGOMETER_RANGE	300
@@ -8046,7 +8055,6 @@ static void CG_Draw2D( void ) {
 
 	CG_DrawLagometer();
 
-
 	if (!cl_paused.integer) {
 		CG_DrawBracketedEntities();
 		CG_DrawUpperRight();
@@ -8297,7 +8305,7 @@ Perform all drawing needed to completely fill the screen
 void CG_DrawActive( stereoFrame_t stereoView ) {
 	float		separation;
 	vec3_t		baseOrg;
-
+	
 	// optionally draw the info screen instead
 	if ( !cg.snap ) {
 		CG_DrawInformation();
@@ -8347,6 +8355,8 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 	if ( separation != 0 ) {
 		VectorCopy( baseOrg, cg.refdef.vieworg );
 	}
+	
+	CG_DrawESL_MOD();
 
 	// draw status bar and other floating elements
  	CG_Draw2D();
